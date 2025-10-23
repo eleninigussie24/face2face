@@ -227,7 +227,7 @@ app.use(
       maxAge: 1000 * 60 * 60 * 24, // 24 hours
       httpOnly: true, // Prevents client-side JS from reading the cookie
       secure: process.env.NODE_ENV === 'production', // true in production (HTTPS required)
-      sameSite: 'lax' // CSRF protection
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // 'none' needed for OAuth in production
     }
   })
 );
