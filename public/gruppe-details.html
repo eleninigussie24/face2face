@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face2Face - Gruppe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            padding: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            color: #000000;
+            font-size: 24px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+        
+        .logo:hover {
+            opacity: 0.7;
+        }
+        
+        .back-link {
+            color: #000000;
+            text-decoration: none;
+            font-size: 16px;
+            border-bottom: 1px solid transparent;
+            transition: border-bottom 0.3s;
+        }
+        
+        .back-link:hover {
+            border-bottom: 1px solid #000000;
+        }
+        
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .group-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .group-name {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .group-description {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .group-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .members-section {
+            flex: 0 0 auto;
+        }
+        
+        .members-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        
+        .members-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .member-badge {
+            padding: 4px 12px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: #000000;
+            display: inline-block;
+        }
+        
+        .member-badge:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+        
+        .action-btn {
+            padding: 12px 24px;
+            min-height: 44px;
+            font-size: 14px;
+            color: #000000;
+            background-color: transparent;
+            border: 1px solid #000000;
+            cursor: pointer;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-btn:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .action-btn.leave {
+            border-color: #d32f2f;
+            color: #d32f2f;
+        }
+        
+        .action-btn.leave:hover {
+            background-color: #d32f2f;
+            color: #ffffff;
+        }
+        
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            flex: 1;
+            background: #e0e0e0;
+        }
+        
+        /* Chat Section */
+        .chat-section {
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 70%;
+        }
+        
+        .message-author {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #666;
+        }
+        
+        .message-text {
+            padding: 10px 14px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            line-height: 1.4;
+        }
+        
+        .message.own {
+            align-self: flex-end;
+        }
+        
+        .message.own .message-text {
+            background: #000000;
+            color: #ffffff;
+        }
+        
+        .chat-input-container {
+            padding: 20px 30px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: #000000;
+        }
+        
+        .send-btn {
+            padding: 12px 24px;
+            min-height: 44px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .send-btn:hover {
+            opacity: 0.8;
+        }
+        
+        /* Roadmap Section */
+        .roadmap-section {
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .roadmap-content {
+            flex: 1;
+            padding: 20px 30px;
+            overflow-y: auto;
+        }
+
+        .todo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .todo-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .todo-item:hover {
+            background: #fafafa;
+        }
+        
+        .todo-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-top: 2px;
+        }
+        
+        .todo-content {
+            flex: 1;
+        }
+        
+        .todo-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .todo-title.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .todo-meta {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .todo-delete {
+            padding: 4px 8px;
+            font-size: 12px;
+            color: #d32f2f;
+            background: transparent;
+            border: 1px solid #d32f2f;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .todo-delete:hover {
+            background: #d32f2f;
+            color: white;
+        }
+        
+        .add-todo-container {
+            padding: 20px 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .add-todo-form {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .todo-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            outline: none;
+        }
+        
+        .todo-input:focus {
+            border-color: #000000;
+        }
+        
+        .add-btn {
+            padding: 12px 24px;
+            min-height: 44px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .add-btn:hover {
+            opacity: 0.8;
+        }
+        
+        /* Non-member overlay */
+        .non-member-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .non-member-card {
+            text-align: center;
+            padding: 40px;
+            max-width: 400px;
+        }
+        
+        .non-member-card h2 {
+            margin-bottom: 20px;
+        }
+        
+        .non-member-card p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        /* Mobile */
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .group-header {
+                flex-direction: column;
+            }
+            
+            .members-section {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px 15px;
+            }
+
+            .nav {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .group-name {
+                font-size: 24px;
+            }
+
+            .group-header {
+                gap: 20px;
+            }
+
+            .group-info,
+            .members-section {
+                padding: 0;
+            }
+
+            .members-list {
+                gap: 6px;
+            }
+
+            .member-badge {
+                font-size: 13px;
+                padding: 3px 10px;
+            }
+
+            .action-btn {
+                width: 100%;
+                padding: 12px 20px;
+            }
+
+            .section-header {
+                padding: 15px 20px;
+            }
+
+            .section-title {
+                font-size: 16px;
+            }
+
+            .chat-messages {
+                padding: 15px 20px;
+            }
+
+            .chat-input-container {
+                padding: 15px 20px;
+            }
+
+            .roadmap-content {
+                padding: 15px 20px;
+            }
+
+            .add-todo-container {
+                padding: 15px 20px;
+            }
+
+            .message {
+                max-width: 85%;
+            }
+
+            .todo-item {
+                padding: 10px;
+            }
+
+            .chat-input,
+            .todo-input {
+                font-size: 16px; /* Verhindert Auto-Zoom auf iOS */
+            }
+
+            .send-btn,
+            .add-btn {
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="nav">
+            <a href="/" class="logo">Face2Face</a>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <a href="/dashboard.html" class="back-link">Dashboard</a>
+                <a href="/gruppen.html" class="back-link">Gruppen</a>
+                <a href="javascript:history.back()" class="back-link">← Zurück</a>
+            </div>
+        </div>
+        
+        <div class="group-header" id="groupHeader">
+            <div class="loading">Gruppe wird geladen...</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent" style="display: none;">
+        <!-- Chat -->
+        <div class="chat-section">
+            <div class="section-header">
+                <h2 class="section-title">Chat</h2>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be loaded here -->
+            </div>
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Nachricht eingeben..." maxlength="1000">
+                <button class="send-btn" id="sendMessageBtn">Senden</button>
+            </div>
+        </div>
+
+        <!-- Roadmap -->
+        <div class="roadmap-section">
+            <div class="section-header">
+                <h2 class="section-title">Roadmap</h2>
+            </div>
+            <div class="roadmap-content">
+                <div class="todo-list" id="todoList">
+                    <!-- Todos will be loaded here -->
+                </div>
+            </div>
+            <div class="add-todo-container">
+                <form class="add-todo-form" id="addTodoForm">
+                    <input type="text" class="todo-input" id="todoInput" placeholder="Neues Ziel hinzufügen..." maxlength="200">
+                    <button type="submit" class="add-btn">Hinzufügen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Non-member overlay -->
+    <div class="non-member-overlay" id="nonMemberOverlay" style="display: none;">
+        <div class="non-member-card">
+            <h2>Noch kein Mitglied</h2>
+            <p id="nonMemberMessage">Trete der Gruppe bei, um auf Chat und Roadmap zuzugreifen.</p>
+            <button class="action-btn" id="joinFromOverlay">Gruppe beitreten</button>
+        </div>
+    </div>
+
+    <script>
+        const groupId = new URLSearchParams(window.location.search).get('id');
+        let currentUser = null;
+        let group = null;
+        let isMember = false;
+        
+        // Load group data
+        async function loadGroup() {
+            try {
+                // Get current user
+                const userRes = await fetch('/api/user');
+                if (userRes.ok) {
+                    currentUser = await userRes.json();
+                }
+                
+                // Get group details
+                const groupRes = await fetch(`/api/groups/${groupId}`);
+                if (!groupRes.ok) {
+                    alert('Gruppe nicht gefunden');
+                    window.location.href = '/gruppen.html';
+                    return;
+                }
+                
+                group = await groupRes.json();
+                
+                // Check if user is member (comparing as strings)
+                isMember = group.members.some(m => m._id.toString() === currentUser.id.toString()) || 
+                          group.created_by._id.toString() === currentUser.id.toString();
+                
+                renderGroupHeader();
+                
+                if (isMember) {
+                    document.getElementById('mainContent').style.display = 'grid';
+                    document.getElementById('nonMemberOverlay').style.display = 'none';
+                    loadMessages();
+                    loadTodos();
+                    startMessagePolling();
+                } else {
+                    document.getElementById('mainContent').style.display = 'none';
+                    document.getElementById('nonMemberOverlay').style.display = 'flex';
+                    
+                    // Check if group is full (members + creator >= max)
+                    const isFull = (group.members.length + 1) >= group.max_teilnehmer;
+                    if (isFull) {
+                        document.getElementById('nonMemberMessage').textContent = 
+                            'Diese Gruppe ist voll. Du kannst leider nicht mehr beitreten.';
+                        document.getElementById('joinFromOverlay').disabled = true;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading group:', error);
+                alert('Fehler beim Laden der Gruppe');
+            }
+        }
+        
+        // Render group header
+        function renderGroupHeader() {
+            const isCreator = group.created_by._id.toString() === currentUser.id.toString();
+            // Can join if not member and group not full (members + creator < max)
+            const canJoin = !isMember && (group.members.length + 1) < group.max_teilnehmer;
+            const canLeave = isMember && !isCreator;
+            
+            const html = `
+                <div class="group-info">
+                    <h1 class="group-name">${group.name}</h1>
+                    ${group.description ? `<p class="group-description">${group.description}</p>` : ''}
+                    <div class="group-meta">
+                        <span>${group.members.length + 1}/${group.max_teilnehmer} Mitglieder</span>
+                        <span>Erstellt von: ${group.created_by.name}</span>
+                    </div>
+                </div>
+                
+                <div class="members-section">
+                    <div class="members-title">MITGLIEDER ${isMember ? '(Klicke auf ein Profil)' : ''}</div>
+                    <div class="members-list">
+                        ${isMember ? `<a href="/user-profile.html?id=${group.created_by._id}" class="member-badge">${group.created_by.name} (Ersteller)</a>` : `<div class="member-badge">${group.created_by.name} (Ersteller)</div>`}
+                        ${group.members.map(m => {
+                            if (isMember) {
+                                return `<a href="/user-profile.html?id=${m._id}" class="member-badge">${m.name}</a>`;
+                            } else {
+                                return `<div class="member-badge">${m.name}</div>`;
+                            }
+                        }).join('')}
+                    </div>
+                    ${canJoin ? '<button class="action-btn" onclick="joinGroup()">Gruppe beitreten</button>' : ''}
+                    ${canLeave ? '<button class="action-btn leave" onclick="leaveGroup()">Gruppe verlassen</button>' : ''}
+                </div>
+            `;
+            
+            document.getElementById('groupHeader').innerHTML = html;
+        }
+        
+        // Join group
+        async function joinGroup() {
+            try {
+                const res = await fetch(`/api/groups/${groupId}/join`, {
+                    method: 'POST'
+                });
+                
+                if (res.ok) {
+                    location.reload();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Fehler beim Beitreten');
+                }
+            } catch (error) {
+                console.error('Error joining group:', error);
+                alert('Fehler beim Beitreten');
+            }
+        }
+        
+        // Leave group
+        async function leaveGroup() {
+            if (!confirm('Möchtest du die Gruppe wirklich verlassen?')) return;
+            
+            try {
+                const res = await fetch(`/api/groups/${groupId}/leave`, {
+                    method: 'POST'
+                });
+                
+                if (res.ok) {
+                    window.location.href = '/gruppen.html';
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Fehler beim Verlassen');
+                }
+            } catch (error) {
+                console.error('Error leaving group:', error);
+                alert('Fehler beim Verlassen');
+            }
+        }
+        
+        // Load messages
+        async function loadMessages() {
+            try {
+                const res = await fetch(`/api/groups/${groupId}/messages`);
+                if (!res.ok) return;
+                
+                const messages = await res.json();
+                renderMessages(messages);
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+        
+        // Render messages
+        function renderMessages(messages) {
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = messages.map(msg => {
+                const isOwn = msg.user.toString() === currentUser.id.toString();
+                return `
+                    <div class="message ${isOwn ? 'own' : ''}">
+                        ${!isOwn ? `<div class="message-author">${msg.userName}</div>` : ''}
+                        <div class="message-text">${escapeHtml(msg.message)}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Send message
+        document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+        
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            try {
+                const res = await fetch(`/api/groups/${groupId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                
+                if (res.ok) {
+                    input.value = '';
+                    loadMessages();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Fehler beim Senden');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Fehler beim Senden');
+            }
+        }
+        
+        // Poll for new messages every 3 seconds
+        function startMessagePolling() {
+            setInterval(loadMessages, 3000);
+        }
+        
+        // Load todos
+        async function loadTodos() {
+            try {
+                const res = await fetch(`/api/groups/${groupId}/todos`);
+                if (!res.ok) return;
+                
+                const todos = await res.json();
+                renderTodos(todos);
+            } catch (error) {
+                console.error('Error loading todos:', error);
+            }
+        }
+        
+        // Render todos
+        function renderTodos(todos) {
+            const container = document.getElementById('todoList');
+            
+            if (todos.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Noch keine Ziele. Füge das erste hinzu!</p>';
+                return;
+            }
+            
+            container.innerHTML = todos.map(todo => `
+                <div class="todo-item">
+                    <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} 
+                           onchange="toggleTodo('${todo._id}', this.checked)">
+                    <div class="todo-content">
+                        <div class="todo-title ${todo.completed ? 'completed' : ''}">${escapeHtml(todo.title)}</div>
+                        <div class="todo-meta">von ${todo.createdByName}</div>
+                    </div>
+                    <button class="todo-delete" onclick="deleteTodo('${todo._id}')">×</button>
+                </div>
+            `).join('');
+        }
+        
+        // Add todo
+        document.getElementById('addTodoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const input = document.getElementById('todoInput');
+            const title = input.value.trim();
+            
+            if (!title) return;
+            
+            try {
+                const res = await fetch(`/api/groups/${groupId}/todos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title })
+                });
+                
+                if (res.ok) {
+                    input.value = '';
+                    loadTodos();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Fehler beim Erstellen');
+                }
+            } catch (error) {
+                console.error('Error creating todo:', error);
+                alert('Fehler beim Erstellen');
+            }
+        });
+        
+        // Toggle todo
+        async function toggleTodo(todoId, completed) {
+            try {
+                await fetch(`/api/groups/${groupId}/todos/${todoId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ completed })
+                });
+                loadTodos();
+            } catch (error) {
+                console.error('Error toggling todo:', error);
+            }
+        }
+        
+        // Delete todo
+        async function deleteTodo(todoId) {
+            if (!confirm('Ziel wirklich löschen?')) return;
+            
+            try {
+                await fetch(`/api/groups/${groupId}/todos/${todoId}`, {
+                    method: 'DELETE'
+                });
+                loadTodos();
+            } catch (error) {
+                console.error('Error deleting todo:', error);
+            }
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Join from overlay
+        document.getElementById('joinFromOverlay').addEventListener('click', joinGroup);
+        
+        // Initialize
+        if (!groupId) {
+            window.location.href = '/gruppen.html';
+        } else {
+            loadGroup();
+        }
+    </script>
+</body>
+</html>

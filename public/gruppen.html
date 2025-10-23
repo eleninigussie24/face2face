@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face2Face - Gruppen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .header {
+            padding: 30px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .logo {
+            color: #000000;
+            font-size: 24px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .logo:hover {
+            opacity: 0.7;
+        }
+        
+        .user-info {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            min-height: 44px;
+            color: #000000;
+            background-color: transparent;
+            border: 1px solid #000000;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        
+        .btn-link {
+            color: #666;
+            border: none;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 10px;
+        }
+        
+        .btn-link:hover {
+            background: transparent;
+            color: #000;
+            border-bottom: 1px solid #000;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+        
+        .groups-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            background: #e0e0e0;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .group-row {
+            background: #ffffff;
+            padding: 24px 30px;
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 30px;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .group-row:hover {
+            background: #fafafa;
+        }
+        
+        .group-info {
+            min-width: 0;
+        }
+        
+        .group-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #000000;
+        }
+        
+        .group-description {
+            font-size: 14px;
+            color: #666;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .group-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .members-count {
+            font-weight: 600;
+            color: #000000;
+        }
+        
+        .group-action {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .status-member {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status-open {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .status-full {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .action-btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+            color: #000000;
+            background-color: transparent;
+            border: 1px solid #000000;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        
+        .action-btn-small:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #666;
+        }
+        
+        .empty-state h2 {
+            margin-bottom: 10px;
+            color: #000;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 80px 20px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .group-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .group-action {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="nav-left">
+            <a href="/" class="logo">Face2Face</a>
+            <span class="user-info" id="userInfo">Alle Gruppen</span>
+        </div>
+        <div class="header-actions" id="headerActions">
+            <a href="/login.html" class="btn">Anmelden</a>
+            <a href="/register.html" class="btn">Registrieren</a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <h1 class="page-title">Verfügbare Gruppen</h1>
+        
+        <div class="groups-list" id="groupsContainer">
+            <div class="loading">Gruppen werden geladen...</div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let isLoggedIn = false;
+        
+        async function loadUser() {
+            try {
+                const response = await fetch('/api/user');
+                if (response.ok) {
+                    currentUser = await response.json();
+                    isLoggedIn = true;
+                    document.getElementById('userInfo').textContent = `Hallo, ${currentUser.name}`;
+                    
+                    // Update header for logged in users
+                    document.getElementById('headerActions').innerHTML = `
+                        <a href="/dashboard.html" class="btn-link">Dashboard</a>
+                        <a href="/profile.html" class="btn-link">Mein Profil</a>
+                        <a href="/gruppe-erstellen.html" class="btn">+ Neue Gruppe</a>
+                        <a href="/users/logout" class="btn-link">Abmelden</a>
+                    `;
+                }
+            } catch (error) {
+                // User not logged in, keep default buttons
+                isLoggedIn = false;
+            }
+        }
+        
+        async function loadGroups() {
+            try {
+                const response = await fetch('/api/groups');
+                
+                if (response.ok) {
+                    const groups = await response.json();
+                    displayGroups(groups);
+                } else {
+                    console.error('Failed to load groups');
+                    document.getElementById('groupsContainer').innerHTML = 
+                        '<div class="empty-state"><h2>Fehler beim Laden</h2><p>Bitte versuche es später erneut.</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading groups:', error);
+                document.getElementById('groupsContainer').innerHTML = 
+                    '<div class="empty-state"><h2>Fehler beim Laden</h2><p>Bitte versuche es später erneut.</p></div>';
+            }
+        }
+
+        function displayGroups(groups) {
+            const container = document.getElementById('groupsContainer');
+            
+            if (groups.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h2>Noch keine Gruppen</h2>
+                        <p>Sei der Erste und erstelle eine Gruppe!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = groups.map(group => {
+                const memberCount = (group.members?.length || 0) + 1; // +1 for creator
+                const maxMembers = group.max_teilnehmer || 10;
+                
+                let isMember = false;
+                if (isLoggedIn && currentUser) {
+                    isMember = group.members?.some(m => m._id.toString() === currentUser.id.toString()) || 
+                               group.created_by?._id.toString() === currentUser.id.toString();
+                }
+                
+                const isFull = memberCount >= maxMembers;
+                
+                let statusBadge = '';
+                let actionButton = '';
+                
+                if (isLoggedIn) {
+                    // Logged in user
+                    if (isMember) {
+                        statusBadge = '<div class="status-badge status-member">Mitglied</div>';
+                        actionButton = `<a href="/gruppe-details.html?id=${group._id}" class="action-btn-small" onclick="event.stopPropagation()">Öffnen</a>`;
+                    } else if (isFull) {
+                        statusBadge = '<div class="status-badge status-full">Voll</div>';
+                        actionButton = '';
+                    } else {
+                        statusBadge = '<div class="status-badge status-open">Offen</div>';
+                        actionButton = `<a href="/gruppe-details.html?id=${group._id}" class="action-btn-small" onclick="event.stopPropagation()">Beitreten</a>`;
+                    }
+                } else {
+                    // Not logged in
+                    if (isFull) {
+                        statusBadge = '<div class="status-badge status-full">Voll</div>';
+                        actionButton = '';
+                    } else {
+                        statusBadge = '<div class="status-badge status-open">Offen</div>';
+                        actionButton = '<a href="/login.html" class="action-btn-small" onclick="event.stopPropagation()">Anmelden zum Beitreten</a>';
+                    }
+                }
+                
+                return `
+                    <div class="group-row" onclick="openGroup('${group._id}')">
+                        <div class="group-info">
+                            <div class="group-name">${escapeHtml(group.name)}</div>
+                            <div class="group-description">${escapeHtml(group.description || 'Keine Beschreibung')}</div>
+                        </div>
+                        <div class="group-meta">
+                            <div class="meta-item">
+                                <span><span class="members-count">${memberCount}/${maxMembers}</span> Mitglieder</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>Erstellt von: ${escapeHtml(group.created_by?.name || 'Unbekannt')}</span>
+                            </div>
+                        </div>
+                        <div class="group-action">
+                            ${statusBadge}
+                            ${actionButton}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function openGroup(groupId) {
+            if (isLoggedIn) {
+                window.location.href = `/gruppe-details.html?id=${groupId}`;
+            } else {
+                // Redirect to login with return URL
+                window.location.href = `/login.html?return=/gruppe-details.html?id=${groupId}`;
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load data on page load
+        loadUser().then(() => loadGroups());
+    </script>
+</body>
+</html>

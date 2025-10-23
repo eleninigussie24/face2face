@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email-Bestätigung - Face2Face</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            padding: 50px 40px;
+            text-align: center;
+        }
+        
+        .icon {
+            width: 80px;
+            height: 80px;
+            background: #e8f4fd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .email {
+            color: #007bff;
+            font-weight: 600;
+            word-break: break-word;
+        }
+        
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: left;
+            border-radius: 5px;
+        }
+        
+        .info-box h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+            color: #666;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+        }
+        
+        .button {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button:hover {
+            background: #0056b3;
+        }
+        
+        .button-secondary {
+            background: #6c757d;
+            margin-left: 10px;
+        }
+        
+        .button-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .resend-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .resend-section p {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 15px;
+        }
+        
+        #resendButton {
+            background: #28a745;
+        }
+        
+        #resendButton:hover {
+            background: #218838;
+        }
+        
+        #resendButton:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 25px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .button {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            .button-secondary {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📧</div>
+        <h1>Überprüfe deine Email</h1>
+        <p>Wir haben eine Bestätigungs-Email an <span class="email" id="userEmail"></span> gesendet.</p>
+        
+        <div class="info-box">
+            <h3>Nächste Schritte:</h3>
+            <ul>
+                <li>Öffne dein Email-Postfach</li>
+                <li>Suche nach einer Email von Face2Face</li>
+                <li>Klicke auf den Bestätigungs-Link in der Email</li>
+                <li>Melde dich dann hier an</li>
+            </ul>
+        </div>
+        
+        <p style="font-size: 14px; color: #999;">
+            Die Email sollte innerhalb weniger Minuten ankommen. Überprüfe auch deinen Spam-Ordner.
+        </p>
+        
+        <a href="/login.html" class="button">Zum Login</a>
+        <a href="/" class="button button-secondary">Zur Startseite</a>
+        
+        <div class="resend-section">
+            <p>Keine Email erhalten?</p>
+            <button id="resendButton" class="button">Email erneut senden</button>
+            <div id="resendMessage"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Get email from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email'); // Already decoded by URLSearchParams
+        
+        if (email) {
+            document.getElementById('userEmail').textContent = email;
+        }
+        
+        // Resend verification email
+        let resendCooldown = false;
+        document.getElementById('resendButton').addEventListener('click', async () => {
+            if (resendCooldown) return;
+            
+            const button = document.getElementById('resendButton');
+            const messageDiv = document.getElementById('resendMessage');
+            
+            if (!email) {
+                messageDiv.innerHTML = '<div class="message error">Email-Adresse fehlt. Bitte registriere dich erneut.</div>';
+                return;
+            }
+            
+            button.disabled = true;
+            button.textContent = 'Wird gesendet...';
+            
+            try {
+                const response = await fetch('/resend-verification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    messageDiv.innerHTML = `<div class="message success">${data.message}</div>`;
+                    
+                    // Set cooldown (60 seconds)
+                    resendCooldown = true;
+                    let countdown = 60;
+                    button.textContent = `Erneut senden (${countdown}s)`;
+                    
+                    const interval = setInterval(() => {
+                        countdown--;
+                        if (countdown > 0) {
+                            button.textContent = `Erneut senden (${countdown}s)`;
+                        } else {
+                            clearInterval(interval);
+                            button.disabled = false;
+                            button.textContent = 'Email erneut senden';
+                            resendCooldown = false;
+                        }
+                    }, 1000);
+                } else {
+                    messageDiv.innerHTML = `<div class="message error">${data.error}</div>`;
+                    button.disabled = false;
+                    button.textContent = 'Email erneut senden';
+                }
+            } catch (error) {
+                console.error('Resend error:', error);
+                messageDiv.innerHTML = '<div class="message error">Ein Fehler ist aufgetreten. Bitte erneut versuchen.</div>';
+                button.disabled = false;
+                button.textContent = 'Email erneut senden';
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

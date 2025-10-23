@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face2Face - Mein Profil</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 60px;
+        }
+        
+        .logo {
+            color: #000000;
+            font-size: 24px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .user-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .welcome {
+            font-size: 16px;
+        }
+        
+        .button {
+            padding: 12px 20px;
+            min-height: 44px;
+            color: #000000;
+            background-color: transparent;
+            border: 1px solid #000000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .button:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        
+        .button.primary {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        
+        .button.primary:hover {
+            background-color: #333333;
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            margin-bottom: 40px;
+        }
+
+        .profile-section {
+            border: 1px solid #000000;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #000000;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-width: 2px;
+        }
+
+        input:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .module-list {
+            border: 1px solid #000000;
+            padding: 15px;
+            min-height: 100px;
+            margin-bottom: 10px;
+        }
+
+        .module-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .module-item:last-child {
+            border-bottom: none;
+        }
+
+        .module-name {
+            flex: 1;
+        }
+
+        .remove-module {
+            padding: 5px 15px;
+            font-size: 14px;
+        }
+
+        .add-module-section {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .add-module-section input {
+            flex: 1;
+        }
+
+        .error {
+            color: #d32f2f;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #d32f2f;
+            background-color: #ffebee;
+        }
+
+        .success {
+            color: #388e3c;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #388e3c;
+            background-color: #e8f5e9;
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #000000;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Mobile Optimierung */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                margin-bottom: 30px;
+            }
+
+            .user-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .profile-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .add-module-section {
+                flex-direction: column;
+            }
+
+            .add-module-section input {
+                width: 100%;
+            }
+
+            .add-module-section button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="logo">Face2Face</a>
+        <div class="user-info">
+            <a href="/dashboard.html" class="button">Dashboard</a>
+            <a href="/gruppen.html" class="button">Gruppen</a>
+            <a href="/users/logout" class="button">Abmelden</a>
+        </div>
+    </div>
+    
+    <div class="content">
+        <a href="javascript:history.back()" class="back-link">← Zurück</a>
+        
+        <h1>Mein Profil</h1>
+
+        <div id="message-container"></div>
+
+        <div class="profile-section">
+            <h2 style="margin-bottom: 20px;">Persönliche Informationen</h2>
+            
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-Mail</label>
+                <input type="email" id="email" disabled>
+                <p class="info-text">Diese E-Mail-Adresse ist für andere Gruppenmitglieder sichtbar</p>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2 style="margin-bottom: 20px;">Studieninformationen</h2>
+            
+            <div class="form-group">
+                <label for="studiengang">Studiengang</label>
+                <input type="text" id="studiengang" placeholder="z.B. Informatik, BWL, Medizin...">
+            </div>
+
+            <div class="form-group">
+                <label for="semester">Semester</label>
+                <input type="number" id="semester" min="1" max="20" placeholder="z.B. 3">
+            </div>
+
+            <div class="form-group">
+                <label>Module</label>
+                <p class="info-text" style="margin-top: 0; margin-bottom: 10px;">
+                    Welche Module belegst du gerade?
+                </p>
+                <div class="module-list" id="module-list">
+                    <p style="color: #999;" id="no-modules">Noch keine Module hinzugefügt</p>
+                </div>
+                <div class="add-module-section">
+                    <input type="text" id="new-module" placeholder="Modulname eingeben...">
+                    <button class="button" onclick="addModule()">Hinzufügen</button>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="button primary" onclick="saveProfile()" id="save-btn">Änderungen speichern</button>
+                <button class="button" onclick="loadProfile()">Zurücksetzen</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentModules = [];
+
+        // Check authentication and load profile
+        fetch('/api/user')
+            .then(res => {
+                if (!res.ok) {
+                    window.location.href = '/login.html';
+                    throw new Error('Not authenticated');
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.name) {
+                    document.getElementById('user-welcome').textContent = `Willkommen, ${data.name}!`;
+                    loadProfile();
+                } else {
+                    window.location.href = '/login.html';
+                }
+            })
+            .catch((error) => {
+                if (error.message !== 'Not authenticated') {
+                    console.error('Error:', error);
+                }
+                // Don't redirect again if already redirected
+            });
+
+        function loadProfile() {
+            fetch('/api/profile')
+                .then(res => {
+                    if (!res.ok) {
+                        if (res.status === 401) {
+                            window.location.href = '/login.html';
+                            throw new Error('Not authenticated');
+                        }
+                        throw new Error('Server error');
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        showMessage(data.error, 'error');
+                        return;
+                    }
+
+                    // Fill in form
+                    document.getElementById('name').value = data.name || '';
+                    document.getElementById('email').value = data.email || '';
+                    document.getElementById('studiengang').value = data.studiengang || '';
+                    document.getElementById('semester').value = data.semester || '';
+                    
+                    // Load modules
+                    currentModules = data.module || [];
+                    renderModules();
+                })
+                .catch(error => {
+                    console.error('Error loading profile:', error);
+                    if (error.message !== 'Not authenticated') {
+                        showMessage('Fehler beim Laden des Profils', 'error');
+                    }
+                });
+        }
+
+        function renderModules() {
+            const moduleList = document.getElementById('module-list');
+            const noModules = document.getElementById('no-modules');
+
+            if (currentModules.length === 0) {
+                noModules.style.display = 'block';
+                // Clear any existing module items
+                const items = moduleList.querySelectorAll('.module-item');
+                items.forEach(item => item.remove());
+            } else {
+                noModules.style.display = 'none';
+                // Clear existing items
+                const items = moduleList.querySelectorAll('.module-item');
+                items.forEach(item => item.remove());
+
+                // Add all modules
+                currentModules.forEach((moduleName, index) => {
+                    const moduleDiv = document.createElement('div');
+                    moduleDiv.className = 'module-item';
+                    moduleDiv.innerHTML = `
+                        <span class="module-name">${escapeHtml(moduleName)}</span>
+                        <button class="button remove-module" onclick="removeModule(${index})">Entfernen</button>
+                    `;
+                    moduleList.appendChild(moduleDiv);
+                });
+            }
+        }
+
+        function addModule() {
+            const input = document.getElementById('new-module');
+            const moduleName = input.value.trim();
+
+            if (!moduleName) {
+                showMessage('Bitte einen Modulnamen eingeben', 'error');
+                return;
+            }
+
+            if (currentModules.includes(moduleName)) {
+                showMessage('Dieses Modul wurde bereits hinzugefügt', 'error');
+                return;
+            }
+
+            currentModules.push(moduleName);
+            renderModules();
+            input.value = '';
+            showMessage('Modul hinzugefügt. Vergiss nicht zu speichern!', 'success');
+        }
+
+        function removeModule(index) {
+            currentModules.splice(index, 1);
+            renderModules();
+            showMessage('Modul entfernt. Vergiss nicht zu speichern!', 'success');
+        }
+
+        function saveProfile() {
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Speichern...';
+
+            const profileData = {
+                studiengang: document.getElementById('studiengang').value.trim(),
+                semester: parseInt(document.getElementById('semester').value) || null,
+                module: currentModules
+            };
+
+            fetch('/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(profileData)
+            })
+            .then(res => {
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        window.location.href = '/login.html';
+                        throw new Error('Not authenticated');
+                    }
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                } else {
+                    showMessage('Profil erfolgreich gespeichert!', 'success');
+                    // Weiterleitung nach 1 Sekunde
+                    setTimeout(() => {
+                        window.location.href = '/gruppen.html';
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                console.error('Error saving profile:', error);
+                if (error.message !== 'Not authenticated') {
+                    showMessage('Fehler beim Speichern des Profils', 'error');
+                }
+            })
+            .finally(() => {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Änderungen speichern';
+            });
+        }
+
+        function showMessage(message, type) {
+            const container = document.getElementById('message-container');
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(div);
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                div.remove();
+            }, 5000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Allow Enter key to add module
+        document.getElementById('new-module').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addModule();
+            }
+        });
+    </script>
+</body>
+</html>
+

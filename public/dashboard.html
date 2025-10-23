@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face2Face - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 60px;
+        }
+        
+        .logo {
+            color: #000000;
+            font-size: 24px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .user-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .welcome {
+            font-size: 16px;
+        }
+        
+        .button {
+            padding: 12px 20px;
+            min-height: 44px;
+            color: #000000;
+            background-color: transparent;
+            border: 1px solid #000000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .button:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            margin-bottom: 40px;
+        }
+        
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .link-card {
+            padding: 20px;
+            border: 1px solid #000000;
+            text-decoration: none;
+            color: #000000;
+            transition: all 0.3s ease;
+        }
+        
+        .link-card:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        /* Mobile Optimierung */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                margin-bottom: 30px;
+            }
+
+            .user-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .link-card {
+                padding: 16px;
+            }
+
+            .link-card h3 {
+                font-size: 16px;
+            }
+
+            .link-card p {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="logo">Face2Face</a>
+        <div class="user-info">
+            <a href="/gruppen.html" class="button">Gruppen</a>
+            <a href="/profile.html" class="button">Mein Profil</a>
+            <a href="/users/logout" class="button">Abmelden</a>
+        </div>
+    </div>
+    
+    <div class="content">
+        <h1>Dashboard</h1>
+        
+        <div class="links">
+            <a href="/profile.html" class="link-card">
+                <h3>Mein Profil</h3>
+                <p>Profil ansehen und bearbeiten</p>
+            </a>
+            
+            <a href="/gruppen.html" class="link-card">
+                <h3>Gruppen durchsuchen</h3>
+                <p>Alle verfügbaren Lerngruppen ansehen</p>
+            </a>
+            
+            <a href="/gruppe-erstellen.html" class="link-card">
+                <h3>Gruppe erstellen</h3>
+                <p>Neue Lerngruppe erstellen</p>
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Check if user is logged in
+        fetch('/api/user')
+            .then(res => {
+                if (!res.ok) {
+                    window.location.href = '/login.html';
+                    throw new Error('Not authenticated');
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.name) {
+                    document.getElementById('user-welcome').textContent = `Willkommen, ${data.name}!`;
+                } else {
+                    window.location.href = '/login.html';
+                }
+            })
+            .catch((error) => {
+                if (error.message !== 'Not authenticated') {
+                    console.error('Error:', error);
+                }
+            });
+    </script>
+</body>
+</html>
+

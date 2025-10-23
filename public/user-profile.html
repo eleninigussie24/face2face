@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face2Face - Benutzerprofil</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 60px;
+        }
+        
+        .logo {
+            color: #000000;
+            font-size: 24px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .user-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .welcome {
+            font-size: 16px;
+        }
+        
+        .button {
+            padding: 12px 20px;
+            min-height: 44px;
+            color: #000000;
+            background-color: transparent;
+            border: 1px solid #000000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .button:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            margin-bottom: 40px;
+        }
+
+        .profile-section {
+            border: 1px solid #000000;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .profile-field {
+            margin-bottom: 25px;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .field-value {
+            font-size: 18px;
+            color: #000000;
+        }
+
+        .module-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .module-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .module-item:last-child {
+            border-bottom: none;
+        }
+
+        .error {
+            color: #d32f2f;
+            padding: 20px;
+            border: 1px solid #d32f2f;
+            background-color: #ffebee;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #000000;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .empty-value {
+            color: #999;
+            font-style: italic;
+        }
+
+        .member-since {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Mobile Optimierung */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                margin-bottom: 30px;
+            }
+
+            .user-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .profile-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .field-value {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="logo">Face2Face</a>
+        <div class="user-info">
+            <a href="/dashboard.html" class="button">Dashboard</a>
+            <a href="/gruppen.html" class="button">Gruppen</a>
+            <a href="/profile.html" class="button">Mein Profil</a>
+            <a href="/users/logout" class="button">Abmelden</a>
+        </div>
+    </div>
+    
+    <div class="content">
+        <a href="javascript:history.back()" class="back-link">← Zurück</a>
+        
+        <div id="loading" class="loading">Profil wird geladen...</div>
+        <div id="error-container"></div>
+        <div id="profile-container" style="display: none;">
+            <h1 id="profile-name"></h1>
+
+            <div class="profile-section">
+                <h2 style="margin-bottom: 20px;">Kontakt</h2>
+                
+                <div class="profile-field">
+                    <span class="field-label">E-Mail</span>
+                    <div class="field-value" id="email"></div>
+                </div>
+
+                <div class="profile-field">
+                    <span class="field-label">Mitglied seit</span>
+                    <div class="field-value member-since" id="member-since"></div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h2 style="margin-bottom: 20px;">Studieninformationen</h2>
+                
+                <div class="profile-field">
+                    <span class="field-label">Studiengang</span>
+                    <div class="field-value" id="studiengang"></div>
+                </div>
+
+                <div class="profile-field">
+                    <span class="field-label">Semester</span>
+                    <div class="field-value" id="semester"></div>
+                </div>
+
+                <div class="profile-field">
+                    <span class="field-label">Module</span>
+                    <ul class="module-list" id="module-list">
+                        <li class="empty-value">Keine Module angegeben</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Check authentication
+        fetch('/api/user')
+            .then(res => {
+                if (!res.ok) {
+                    window.location.href = '/login.html';
+                    throw new Error('Not authenticated');
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.name) {
+                    document.getElementById('user-welcome').textContent = `Willkommen, ${data.name}!`;
+                    loadUserProfile();
+                } else {
+                    window.location.href = '/login.html';
+                }
+            })
+            .catch((error) => {
+                if (error.message !== 'Not authenticated') {
+                    console.error('Error:', error);
+                }
+                // Don't redirect again if already redirected
+            });
+
+        function loadUserProfile() {
+            // Get user ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('id');
+
+            if (!userId) {
+                showError('Keine Benutzer-ID angegeben');
+                return;
+            }
+
+            fetch(`/api/users/${userId}`)
+                .then(res => {
+                    if (!res.ok) {
+                        if (res.status === 401) {
+                            window.location.href = '/login.html';
+                            throw new Error('Not authenticated');
+                        } else if (res.status === 404) {
+                            throw new Error('Benutzer nicht gefunden');
+                        }
+                        throw new Error('Server error');
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+
+                    displayProfile(data);
+                })
+                .catch(error => {
+                    console.error('Error loading user profile:', error);
+                    if (error.message !== 'Not authenticated') {
+                        showError(error.message || 'Fehler beim Laden des Profils');
+                    }
+                });
+        }
+
+        function displayProfile(user) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('profile-container').style.display = 'block';
+
+            // Set name
+            document.getElementById('profile-name').textContent = user.name;
+            document.title = `Face2Face - ${user.name}`;
+
+            // Set email
+            document.getElementById('email').textContent = user.email;
+
+            // Set member since
+            const memberSince = new Date(user.createdAt);
+            document.getElementById('member-since').textContent = memberSince.toLocaleDateString('de-DE', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Set studiengang
+            const studiengangEl = document.getElementById('studiengang');
+            if (user.studiengang) {
+                studiengangEl.textContent = user.studiengang;
+            } else {
+                studiengangEl.innerHTML = '<span class="empty-value">Nicht angegeben</span>';
+            }
+
+            // Set semester
+            const semesterEl = document.getElementById('semester');
+            if (user.semester) {
+                semesterEl.textContent = user.semester + '. Semester';
+            } else {
+                semesterEl.innerHTML = '<span class="empty-value">Nicht angegeben</span>';
+            }
+
+            // Set modules
+            const moduleList = document.getElementById('module-list');
+            if (user.module && user.module.length > 0) {
+                moduleList.innerHTML = '';
+                user.module.forEach(moduleName => {
+                    const li = document.createElement('li');
+                    li.className = 'module-item';
+                    li.textContent = moduleName;
+                    moduleList.appendChild(li);
+                });
+            } else {
+                moduleList.innerHTML = '<li class="empty-value">Keine Module angegeben</li>';
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
+        }
+
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
+
