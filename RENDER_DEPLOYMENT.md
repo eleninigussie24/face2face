@@ -125,7 +125,7 @@ npm start
 
 Scrolle runter zu **"Environment Variables"** und klicke auf **"Add Environment Variable"**.
 
-Füge folgende Variablen hinzu:
+#### ✅ Erforderliche Variablen:
 
 | Key | Value |
 |-----|-------|
@@ -140,6 +140,20 @@ Füge folgende Variablen hinzu:
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 Kopiere den generierten String und füge ihn als `SESSION_SECRET` ein.
+
+#### ⚠️ Auth0 Variablen (ERFORDERLICH für Google Login):
+**WICHTIG:** Ohne diese Variablen funktioniert Google Login NICHT!
+
+Folge der Anleitung in `AUTH0_SETUP_GUIDE.md` und füge dann hinzu:
+
+| Key | Value |
+|-----|-------|
+| `AUTH0_DOMAIN` | Deine Auth0 Domain (z.B. `dev-abc123.eu.auth0.com`) |
+| `AUTH0_CLIENT_ID` | Deine Auth0 Client ID |
+| `AUTH0_CLIENT_SECRET` | Dein Auth0 Client Secret |
+| `AUTH0_CALLBACK_URL` | `https://[dein-service-name].onrender.com/auth/callback` |
+
+> 📖 **Siehe `AUTH0_SETUP_GUIDE.md` für die komplette Auth0 Setup-Anleitung!**
 
 #### Optionale Variablen (für Email-Funktionalität):
 Wenn du Email-Verifikation nutzen möchtest:

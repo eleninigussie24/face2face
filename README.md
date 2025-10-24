@@ -9,8 +9,12 @@ A secure, modern web application for university students to create and join stud
 ## ✨ Features
 
 - 🔐 **Secure Authentication** - bcrypt password hashing, session management
+- 🔑 **Google OAuth Login** - Sign in with Google via Auth0
+- ✉️ **Email Verification** - Secure email verification for new users
 - 👥 **User Management** - Register, login, profile management
 - 📚 **Study Groups** - Create, browse, and join study groups
+- 💬 **Group Chat** - Real-time messaging within groups
+- 📝 **Roadmap/Todo System** - Organize tasks within groups
 - 🛡️ **Enterprise Security** - Rate limiting, input validation, CSRF protection
 - 💾 **MongoDB Integration** - Fast, scalable database
 - 📱 **Responsive Design** - Works on desktop and mobile
@@ -117,12 +121,28 @@ faceface-app/
 
 ### Environment Variables
 
+#### Required:
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `NODE_ENV` | Environment mode | `development` or `production` |
 | `PORT` | Server port | `3000` |
 | `SESSION_SECRET` | Session encryption key | Generated 64-char hex string |
 | `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/faceface_db` |
+
+#### For Google Login (Auth0):
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `AUTH0_DOMAIN` | Auth0 domain | `dev-abc123.eu.auth0.com` |
+| `AUTH0_CLIENT_ID` | Auth0 client ID | `abc123xyz...` |
+| `AUTH0_CLIENT_SECRET` | Auth0 client secret | `secret123...` |
+| `AUTH0_CALLBACK_URL` | OAuth callback URL | `https://yourapp.com/auth/callback` |
+
+#### For Email Verification (Optional):
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `EMAIL_SERVICE` | Email provider | `gmail` or `sendgrid` |
+| `EMAIL_USER` | Email address | `yourapp@gmail.com` |
+| `EMAIL_PASSWORD` | Email password/API key | App-specific password |
 
 ### Password Requirements
 
@@ -228,6 +248,27 @@ npm run dev        # Start development server (nodemon)
 
 ## 🚢 Deployment
 
+### 📚 Deployment Guides
+
+We have comprehensive deployment guides for different platforms:
+
+- **[RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)** - Deploy to Render.com (Free tier available)
+- **[DEPLOY_TO_RAILWAY.md](DEPLOY_TO_RAILWAY.md)** - Deploy to Railway.app ($5/month)
+
+### 🔐 Google Login Setup
+
+To enable Google OAuth login (via Auth0):
+
+**📖 See [AUTH0_SETUP_GUIDE.md](AUTH0_SETUP_GUIDE.md) for complete setup instructions**
+
+Required environment variables:
+- `AUTH0_DOMAIN` - Your Auth0 domain
+- `AUTH0_CLIENT_ID` - Your Auth0 client ID
+- `AUTH0_CLIENT_SECRET` - Your Auth0 client secret
+- `AUTH0_CALLBACK_URL` - Callback URL for your app
+
+**⚠️ Google login will NOT work without these variables!**
+
 ### MongoDB Atlas (Cloud Database)
 
 1. Create free cluster at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
@@ -242,13 +283,14 @@ For production, ensure:
 - [ ] MongoDB Atlas or secured MongoDB instance
 - [ ] HTTPS enabled (secure cookies auto-enable)
 - [ ] Environment variables set in hosting platform
+- [ ] Auth0 variables configured (if using Google login)
 
 ### Deployment Platforms
 
 Works with:
+- [Render](https://render.com/) - ⭐ Recommended (Free tier)
+- [Railway](https://railway.app/) - ⭐ Recommended ($5/month)
 - [Heroku](https://www.heroku.com/)
-- [Railway](https://railway.app/)
-- [Render](https://render.com/)
 - [DigitalOcean App Platform](https://www.digitalocean.com/products/app-platform)
 - [AWS EC2](https://aws.amazon.com/ec2/)
 
@@ -298,6 +340,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🐛 Troubleshooting
 
+### 🔴 Google Login Not Working?
+
+**📖 See [GOOGLE_LOGIN_FIX.md](GOOGLE_LOGIN_FIX.md) for comprehensive troubleshooting**
+
+Common causes:
+- Auth0 environment variables not set
+- Callback URL mismatch
+- Google Connection not activated in Auth0
+
 ### MongoDB Connection Error
 ```bash
 # Check if MongoDB is running
@@ -321,6 +372,12 @@ If sessions aren't persisting, check:
 - MongoDB is running
 - `SESSION_SECRET` is set in `.env`
 - `MONGODB_URI` is correct
+
+### Email Verification Not Working
+Check that email service is configured:
+- Set `EMAIL_SERVICE=gmail` or `EMAIL_SERVICE=sendgrid`
+- Configure email credentials in environment variables
+- See deployment guides for details
 
 ## 📧 Contact
 
