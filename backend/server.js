@@ -39,6 +39,19 @@ if (process.env.NODE_ENV === 'production') {
   if (!process.env.EMAIL_SERVICE) {
     console.warn('⚠️  WARNING: EMAIL_SERVICE not set - verification emails will only be logged to console!');
   }
+  
+  // Warn about Auth0 (Google login) configuration
+  const auth0Vars = ['AUTH0_DOMAIN', 'AUTH0_CLIENT_ID', 'AUTH0_CLIENT_SECRET', 'AUTH0_CALLBACK_URL'];
+  const missingAuth0Vars = auth0Vars.filter(varName => !process.env[varName]);
+  
+  if (missingAuth0Vars.length > 0) {
+    console.warn('⚠️  WARNING: Auth0 environment variables not set - Google login will NOT work!');
+    console.warn('   Missing variables:');
+    missingAuth0Vars.forEach(varName => console.warn(`   - ${varName}`));
+    console.warn('\n   See AUTH0_SETUP_GUIDE.md for setup instructions.');
+  } else {
+    console.log('✅ Auth0 configured - Google login enabled');
+  }
 }
 
 // Initialize MongoDB connection
@@ -195,6 +208,10 @@ passport.use(new Auth0Strategy({
 // STANDARD MIDDLEWARE
 // ===========================
 
+// Trust proxy - REQUIRED for Render.com and other hosting platforms
+// This allows Express to trust the proxy's HTTPS headers
+app.set('trust proxy', 1);
+
 // Body parsers
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -216,6 +233,7 @@ app.use(
     secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
     resave: false,
     saveUninitialized: true, // Changed to true for OAuth flows
+    proxy: true, // Trust the reverse proxy for secure cookies
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/faceface_db',
       touchAfter: 24 * 3600, // lazy session update
