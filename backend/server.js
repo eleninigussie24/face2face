@@ -750,8 +750,20 @@ app.get("/dashboard.html", checkNotAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
 
-// Serve static files from public directory (for all other files)
-app.use(express.static(path.join(__dirname, '../public')));
+// Serve static files from public directory with proper cache control
+app.use(express.static(path.join(__dirname, '../public'), {
+  setHeaders: (res, path) => {
+    // Don't cache HTML files (always get fresh version)
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    } else {
+      // Cache other files (CSS, JS, images) for 1 hour
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+    }
+  }
+}));
 
 // Semi-protected pages (can view but some features need login)
 // gruppen.html and gruppe-details.html are now publicly accessible
