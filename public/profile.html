@@ -302,208 +302,48 @@
                 </div>
                 <div class="add-module-section">
                     <input type="text" id="new-module" placeholder="Modulname eingeben...">
-                    <button class="button" onclick="addModule()">Hinzufügen</button>
+                    <button class="button" id="add-module-btn">Hinzufügen</button>
                 </div>
             </div>
 
             <div class="actions">
-                <button class="button primary" onclick="saveProfile()" id="save-btn">Änderungen speichern</button>
-                <button class="button" onclick="loadProfile()">Zurücksetzen</button>
+                <button class="button primary" id="save-btn">Änderungen speichern</button>
+                <button class="button" id="reset-btn">Zurücksetzen</button>
             </div>
         </div>
     </div>
     
     <script>
-        let currentModules = [];
+        // Globale Variablen
+        var currentModules = [];
+        
+        console.log('Script loaded');
 
-        // Check authentication and load profile
-        fetch('/api/user')
-            .then(res => {
-                if (!res.ok) {
-                    window.location.href = '/login.html';
-                    throw new Error('Not authenticated');
-                }
-                return res.json();
-            })
-            .then(data => {
-                if (data.name) {
-                    document.getElementById('user-welcome').textContent = `Willkommen, ${data.name}!`;
-                    loadProfile();
-                } else {
-                    window.location.href = '/login.html';
-                }
-            })
-            .catch((error) => {
-                if (error.message !== 'Not authenticated') {
-                    console.error('Error:', error);
-                }
-                // Don't redirect again if already redirected
-            });
-
-        function loadProfile() {
-            fetch('/api/profile')
-                .then(res => {
-                    if (!res.ok) {
-                        if (res.status === 401) {
-                            window.location.href = '/login.html';
-                            throw new Error('Not authenticated');
-                        }
-                        throw new Error('Server error');
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        showMessage(data.error, 'error');
-                        return;
-                    }
-
-                    // Fill in form
-                    document.getElementById('name').value = data.name || '';
-                    document.getElementById('email').value = data.email || '';
-                    document.getElementById('studiengang').value = data.studiengang || '';
-                    document.getElementById('semester').value = data.semester || '';
-                    
-                    // Load modules
-                    currentModules = data.module || [];
-                    renderModules();
-                })
-                .catch(error => {
-                    console.error('Error loading profile:', error);
-                    if (error.message !== 'Not authenticated') {
-                        showMessage('Fehler beim Laden des Profils', 'error');
-                    }
-                });
-        }
-
-        function renderModules() {
-            const moduleList = document.getElementById('module-list');
-            const noModules = document.getElementById('no-modules');
-
-            if (currentModules.length === 0) {
-                noModules.style.display = 'block';
-                // Clear any existing module items
-                const items = moduleList.querySelectorAll('.module-item');
-                items.forEach(item => item.remove());
-            } else {
-                noModules.style.display = 'none';
-                // Clear existing items
-                const items = moduleList.querySelectorAll('.module-item');
-                items.forEach(item => item.remove());
-
-                // Add all modules
-                currentModules.forEach((moduleName, index) => {
-                    const moduleDiv = document.createElement('div');
-                    moduleDiv.className = 'module-item';
-                    moduleDiv.innerHTML = `
-                        <span class="module-name">${escapeHtml(moduleName)}</span>
-                        <button class="button remove-module" onclick="removeModule(${index})">Entfernen</button>
-                    `;
-                    moduleList.appendChild(moduleDiv);
-                });
-            }
-        }
-
-        function addModule() {
-            console.log('addModule() called');
-            const input = document.getElementById('new-module');
-            const moduleName = input.value.trim();
-            console.log('Module name:', moduleName);
-
-            if (!moduleName) {
-                showMessage('Bitte einen Modulnamen eingeben', 'error');
-                return;
-            }
-
-            if (currentModules.includes(moduleName)) {
-                showMessage('Dieses Modul wurde bereits hinzugefügt', 'error');
-                return;
-            }
-
-            currentModules.push(moduleName);
-            console.log('Current modules after add:', currentModules);
-            renderModules();
-            input.value = '';
-            showMessage('Modul hinzugefügt. Vergiss nicht zu speichern!', 'success');
-        }
-
-        function removeModule(index) {
-            currentModules.splice(index, 1);
-            renderModules();
-            showMessage('Modul entfernt. Vergiss nicht zu speichern!', 'success');
-        }
-
-        async function saveProfile() {
-            const saveBtn = document.getElementById('save-btn');
-            saveBtn.disabled = true;
-            saveBtn.textContent = 'Speichern...';
-
-            const profileData = {
-                studiengang: document.getElementById('studiengang').value.trim(),
-                semester: parseInt(document.getElementById('semester').value) || null,
-                module: currentModules
-            };
-
-            try {
-                const response = await fetch('/api/profile', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(profileData)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '/login.html';
-                        return;
-                    }
-                    throw new Error(data.error || 'Fehler beim Speichern');
-                }
-
-                if (data.error) {
-                    showMessage(data.error, 'error');
-                } else {
-                    showMessage('✅ Profil erfolgreich gespeichert!', 'success');
-                    // Reload profile to confirm changes
-                    setTimeout(() => {
-                        loadProfile();
-                    }, 1500);
-                }
-            } catch (error) {
-                console.error('Error saving profile:', error);
-                showMessage('❌ ' + (error.message || 'Fehler beim Speichern des Profils'), 'error');
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.textContent = 'Änderungen speichern';
-            }
-        }
-
-        function showMessage(message, type) {
-            const container = document.getElementById('message-container');
-            const div = document.createElement('div');
-            div.className = type;
-            div.textContent = message;
-            container.innerHTML = '';
-            container.appendChild(div);
-
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                div.remove();
-            }, 5000);
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Allow Enter key to add module
+        // Warten bis DOM geladen ist
         document.addEventListener('DOMContentLoaded', function() {
-            const moduleInput = document.getElementById('new-module');
+            console.log('DOM loaded');
+            
+            // Event Listeners für Buttons
+            var addBtn = document.getElementById('add-module-btn');
+            var saveBtn = document.getElementById('save-btn');
+            var resetBtn = document.getElementById('reset-btn');
+            var moduleInput = document.getElementById('new-module');
+            
+            if (addBtn) {
+                addBtn.addEventListener('click', addModule);
+                console.log('Add button listener attached');
+            }
+            
+            if (saveBtn) {
+                saveBtn.addEventListener('click', saveProfile);
+                console.log('Save button listener attached');
+            }
+            
+            if (resetBtn) {
+                resetBtn.addEventListener('click', loadProfile);
+                console.log('Reset button listener attached');
+            }
+            
             if (moduleInput) {
                 moduleInput.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
@@ -512,7 +352,198 @@
                     }
                 });
             }
+            
+            // Auth check and load profile
+            checkAuthAndLoad();
         });
+
+        function checkAuthAndLoad() {
+            fetch('/api/user')
+                .then(function(res) {
+                    if (!res.ok) {
+                        window.location.href = '/login.html';
+                        return null;
+                    }
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (data && data.name) {
+                        loadProfile();
+                    } else {
+                        window.location.href = '/login.html';
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Auth error:', error);
+                    window.location.href = '/login.html';
+                });
+        }
+
+        function loadProfile() {
+            console.log('Loading profile...');
+            fetch('/api/profile')
+                .then(function(res) {
+                    if (!res.ok) {
+                        if (res.status === 401) {
+                            window.location.href = '/login.html';
+                        }
+                        throw new Error('Failed to load profile');
+                    }
+                    return res.json();
+                })
+                .then(function(data) {
+                    console.log('Profile loaded:', data);
+                    document.getElementById('name').value = data.name || '';
+                    document.getElementById('email').value = data.email || '';
+                    document.getElementById('studiengang').value = data.studiengang || '';
+                    document.getElementById('semester').value = data.semester || '';
+                    
+                    currentModules = data.module || [];
+                    renderModules();
+                })
+                .catch(function(error) {
+                    console.error('Error loading profile:', error);
+                    showMessage('Fehler beim Laden des Profils', 'error');
+                });
+        }
+
+        function renderModules() {
+            console.log('Rendering modules:', currentModules);
+            var moduleList = document.getElementById('module-list');
+            var noModules = document.getElementById('no-modules');
+            
+            // Clear existing items
+            var items = moduleList.querySelectorAll('.module-item');
+            items.forEach(function(item) {
+                item.remove();
+            });
+
+            if (currentModules.length === 0) {
+                noModules.style.display = 'block';
+            } else {
+                noModules.style.display = 'none';
+                
+                currentModules.forEach(function(moduleName, index) {
+                    var moduleDiv = document.createElement('div');
+                    moduleDiv.className = 'module-item';
+                    
+                    var nameSpan = document.createElement('span');
+                    nameSpan.className = 'module-name';
+                    nameSpan.textContent = moduleName;
+                    
+                    var removeBtn = document.createElement('button');
+                    removeBtn.className = 'button remove-module';
+                    removeBtn.textContent = 'Entfernen';
+                    removeBtn.onclick = function() {
+                        removeModule(index);
+                    };
+                    
+                    moduleDiv.appendChild(nameSpan);
+                    moduleDiv.appendChild(removeBtn);
+                    moduleList.appendChild(moduleDiv);
+                });
+            }
+        }
+
+        function addModule() {
+            console.log('addModule called');
+            var input = document.getElementById('new-module');
+            var moduleName = input.value.trim();
+            
+            console.log('Module name:', moduleName);
+
+            if (!moduleName) {
+                showMessage('Bitte einen Modulnamen eingeben', 'error');
+                return;
+            }
+
+            if (currentModules.indexOf(moduleName) !== -1) {
+                showMessage('Dieses Modul wurde bereits hinzugefügt', 'error');
+                return;
+            }
+
+            currentModules.push(moduleName);
+            console.log('Module added. Current modules:', currentModules);
+            renderModules();
+            input.value = '';
+            showMessage('Modul hinzugefügt. Vergiss nicht zu speichern!', 'success');
+        }
+
+        function removeModule(index) {
+            console.log('Removing module at index:', index);
+            currentModules.splice(index, 1);
+            renderModules();
+            showMessage('Modul entfernt. Vergiss nicht zu speichern!', 'success');
+        }
+
+        function saveProfile() {
+            console.log('Save profile called');
+            var saveBtn = document.getElementById('save-btn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Speichern...';
+
+            var profileData = {
+                studiengang: document.getElementById('studiengang').value.trim(),
+                semester: parseInt(document.getElementById('semester').value) || null,
+                module: currentModules
+            };
+            
+            console.log('Saving profile data:', profileData);
+
+            fetch('/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(profileData)
+            })
+            .then(function(response) {
+                console.log('Save response status:', response.status);
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/login.html';
+                        return null;
+                    }
+                }
+                return response.json();
+            })
+            .then(function(data) {
+                if (!data) return;
+                
+                console.log('Save response:', data);
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                } else {
+                    showMessage('✅ Profil erfolgreich gespeichert!', 'success');
+                    setTimeout(function() {
+                        loadProfile();
+                    }, 1500);
+                }
+            })
+            .catch(function(error) {
+                console.error('Error saving profile:', error);
+                showMessage('❌ Fehler beim Speichern des Profils', 'error');
+            })
+            .finally(function() {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Änderungen speichern';
+            });
+        }
+
+        function showMessage(message, type) {
+            console.log('Showing message:', type, message);
+            var container = document.getElementById('message-container');
+            container.innerHTML = '';
+            
+            var div = document.createElement('div');
+            div.className = type;
+            div.textContent = message;
+            container.appendChild(div);
+
+            setTimeout(function() {
+                div.remove();
+            }, 5000);
+        }
     </script>
 </body>
 </html>
