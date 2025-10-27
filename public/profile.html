@@ -431,7 +431,7 @@
             showMessage('Modul entfernt. Vergiss nicht zu speichern!', 'success');
         }
 
-        function saveProfile() {
+        async function saveProfile() {
             const saveBtn = document.getElementById('save-btn');
             saveBtn.disabled = true;
             saveBtn.textContent = 'Speichern...';
@@ -442,43 +442,41 @@
                 module: currentModules
             };
 
-            fetch('/api/profile', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(profileData)
-            })
-            .then(res => {
-                if (!res.ok) {
-                    if (res.status === 401) {
+            try {
+                const response = await fetch('/api/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(profileData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    if (response.status === 401) {
                         window.location.href = '/login.html';
-                        throw new Error('Not authenticated');
+                        return;
                     }
+                    throw new Error(data.error || 'Fehler beim Speichern');
                 }
-                return res.json();
-            })
-            .then(data => {
+
                 if (data.error) {
                     showMessage(data.error, 'error');
                 } else {
-                    showMessage('Profil erfolgreich gespeichert!', 'success');
-                    // Weiterleitung nach 1 Sekunde
+                    showMessage('✅ Profil erfolgreich gespeichert!', 'success');
+                    // Reload profile to confirm changes
                     setTimeout(() => {
-                        window.location.href = '/gruppen.html';
-                    }, 1000);
+                        loadProfile();
+                    }, 1500);
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error saving profile:', error);
-                if (error.message !== 'Not authenticated') {
-                    showMessage('Fehler beim Speichern des Profils', 'error');
-                }
-            })
-            .finally(() => {
+                showMessage('❌ ' + (error.message || 'Fehler beim Speichern des Profils'), 'error');
+            } finally {
                 saveBtn.disabled = false;
                 saveBtn.textContent = 'Änderungen speichern';
-            });
+            }
         }
 
         function showMessage(message, type) {

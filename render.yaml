@@ -13,8 +13,6 @@ services:
         sync: false
       - key: SESSION_SECRET
         generateValue: true
-      - key: PORT
-        value: 3000
       # Auth0 variables for Google Login (REQUIRED - see AUTH0_SETUP_GUIDE.md)
       - key: AUTH0_DOMAIN
         sync: false

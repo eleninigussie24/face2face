@@ -97,7 +97,38 @@
         .page-title {
             font-size: 32px;
             font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .create-group-section {
+            text-align: center;
             margin-bottom: 40px;
+        }
+        
+        .btn-create-group {
+            padding: 14px 32px;
+            min-height: 48px;
+            color: #ffffff;
+            background-color: #000000;
+            border: 2px solid #000000;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .btn-create-group:hover {
+            background-color: #ffffff;
+            color: #000000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
         .groups-list {
@@ -263,6 +294,10 @@
     <div class="main-content">
         <h1 class="page-title">Verfügbare Gruppen</h1>
         
+        <div class="create-group-section" id="createGroupSection" style="display: none;">
+            <a href="/gruppe-erstellen.html" class="btn-create-group">+ Neue Gruppe erstellen</a>
+        </div>
+        
         <div class="groups-list" id="groupsContainer">
             <div class="loading">Gruppen werden geladen...</div>
         </div>
@@ -284,9 +319,11 @@
                     document.getElementById('headerActions').innerHTML = `
                         <a href="/dashboard.html" class="btn-link">Dashboard</a>
                         <a href="/profile.html" class="btn-link">Mein Profil</a>
-                        <a href="/gruppe-erstellen.html" class="btn">+ Neue Gruppe</a>
                         <a href="/users/logout" class="btn-link">Abmelden</a>
                     `;
+                    
+                    // Show centered create group button
+                    document.getElementById('createGroupSection').style.display = 'block';
                 }
             } catch (error) {
                 // User not logged in, keep default buttons
