@@ -405,8 +405,10 @@
         }
 
         function addModule() {
+            console.log('addModule() called');
             const input = document.getElementById('new-module');
             const moduleName = input.value.trim();
+            console.log('Module name:', moduleName);
 
             if (!moduleName) {
                 showMessage('Bitte einen Modulnamen eingeben', 'error');
@@ -419,6 +421,7 @@
             }
 
             currentModules.push(moduleName);
+            console.log('Current modules after add:', currentModules);
             renderModules();
             input.value = '';
             showMessage('Modul hinzugefügt. Vergiss nicht zu speichern!', 'success');
@@ -499,9 +502,15 @@
         }
 
         // Allow Enter key to add module
-        document.getElementById('new-module').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addModule();
+        document.addEventListener('DOMContentLoaded', function() {
+            const moduleInput = document.getElementById('new-module');
+            if (moduleInput) {
+                moduleInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addModule();
+                    }
+                });
             }
         });
     </script>
