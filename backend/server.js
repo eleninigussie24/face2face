@@ -58,6 +58,57 @@ if (process.env.NODE_ENV === 'production') {
 connectDB();
 
 // ===========================
+// AUTO-SEED DEMO GROUP
+// ===========================
+
+// Automatically create demo group if it doesn't exist
+async function createDemoGroupIfNeeded() {
+  try {
+    // Wait a bit for DB connection to be fully established
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Check if demo group already exists
+    const existingGroup = await Group.findOne({ name: "Analysis und Lineare Algebra" });
+    if (existingGroup) {
+      console.log("✅ Demo group already exists");
+      return;
+    }
+
+    // Find or create demo user
+    let demoUser = await User.findOne({ email: "demo@face2face.app" });
+    
+    if (!demoUser) {
+      demoUser = new User({
+        name: "Face2Face Team",
+        email: "demo@face2face.app",
+        password: "Demo123456!",
+        isVerified: true,
+        verificationCode: null
+      });
+      await demoUser.save();
+      console.log("✅ Demo user created");
+    }
+
+    // Create demo group
+    const demoGroup = new Group({
+      name: "Analysis und Lineare Algebra",
+      description: "Lerngruppe für Analysis und Lineare Algebra. Gemeinsam Aufgaben lösen, Konzepte verstehen und für Prüfungen vorbereiten.",
+      created_by: demoUser._id,
+      max_teilnehmer: 5,
+      members: []
+    });
+
+    await demoGroup.save();
+    console.log("✅ Demo group 'Analysis und Lineare Algebra' created successfully");
+  } catch (error) {
+    console.error("⚠️  Could not create demo group:", error.message);
+  }
+}
+
+// Run after a short delay to ensure DB is connected
+setTimeout(createDemoGroupIfNeeded, 3000);
+
+// ===========================
 // SECURITY MIDDLEWARE
 // ===========================
 
@@ -841,53 +892,6 @@ app.get("/api/groups/:id", apiLimiter, async (req, res) => {
   } catch (error) {
     console.error("Error fetching group:", error);
     res.status(500).json({ error: "Failed to fetch group" });
-  }
-});
-
-// Admin endpoint to create demo group (one-time use)
-app.post("/api/admin/seed-demo-group", async (req, res) => {
-  try {
-    // Check if demo group already exists
-    const existingGroup = await Group.findOne({ name: "Analysis und Lineare Algebra" });
-    if (existingGroup) {
-      return res.json({ message: "Demo-Gruppe existiert bereits!", group: existingGroup });
-    }
-
-    // Find or create demo user
-    let demoUser = await User.findOne({ email: "demo@face2face.app" });
-    
-    if (!demoUser) {
-      demoUser = new User({
-        name: "Face2Face Team",
-        email: "demo@face2face.app",
-        password: "demo123456789",
-        isVerified: true,
-        verificationCode: null
-      });
-      await demoUser.save();
-    }
-
-    // Create demo group
-    const demoGroup = new Group({
-      name: "Analysis und Lineare Algebra",
-      description: "Lerngruppe für Analysis und Lineare Algebra. Gemeinsam Aufgaben lösen, Konzepte verstehen und für Prüfungen vorbereiten.",
-      created_by: demoUser._id,
-      max_teilnehmer: 5,
-      members: []
-    });
-
-    await demoGroup.save();
-    await demoGroup.populate('created_by', 'name email');
-
-    console.log("✅ Demo-Gruppe erstellt:", demoGroup.name);
-    res.json({ 
-      success: true, 
-      message: "Demo-Gruppe erfolgreich erstellt!",
-      group: demoGroup 
-    });
-  } catch (error) {
-    console.error("Error creating demo group:", error);
-    res.status(500).json({ error: "Failed to create demo group" });
   }
 });
 
