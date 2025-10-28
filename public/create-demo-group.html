@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XX6ZT39L6L"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XX6ZT39L6L');
+    </script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo-Gruppe erstellen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #000;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #666;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Demo-Gruppe erstellen</h1>
+        <p>Klicken Sie auf den Button, um die Gruppe <strong>"Analysis und Lineare Algebra"</strong> zu erstellen. Diese Gruppe wird permanent auf der Website angezeigt.</p>
+        
+        <button class="btn" id="createBtn" onclick="createDemoGroup()">
+            Demo-Gruppe erstellen
+        </button>
+        
+        <div class="result" id="result"></div>
+        
+        <a href="/gruppen.html" class="back-link">← Zurück zu Gruppen</a>
+    </div>
+    
+    <script>
+        async function createDemoGroup() {
+            const btn = document.getElementById('createBtn');
+            const result = document.getElementById('result');
+            
+            // Disable button
+            btn.disabled = true;
+            btn.innerHTML = 'Erstelle Gruppe... <span class="loading"></span>';
+            
+            // Hide previous result
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/admin/seed-demo-group', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.className = 'result success';
+                    result.style.display = 'block';
+                    
+                    if (data.message && data.message.includes('existiert bereits')) {
+                        result.innerHTML = `
+                            <h3>ℹ️ Gruppe existiert bereits!</h3>
+                            <p>Die Demo-Gruppe wurde bereits erstellt.</p>
+                            <p><a href="/gruppen.html" style="color: #155724; font-weight: bold;">Jetzt Gruppen ansehen →</a></p>
+                        `;
+                    } else {
+                        result.innerHTML = `
+                            <h3>✅ Erfolg!</h3>
+                            <p>Die Gruppe <strong>"${data.group.name}"</strong> wurde erfolgreich erstellt!</p>
+                            <p>Erstellt von: ${data.group.created_by.name}</p>
+                            <p>Max. Teilnehmer: ${data.group.max_teilnehmer}</p>
+                            <p><a href="/gruppen.html" style="color: #155724; font-weight: bold;">Jetzt Gruppen ansehen →</a></p>
+                        `;
+                    }
+                    
+                    btn.innerHTML = '✅ Fertig!';
+                    
+                    // Redirect after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = '/gruppen.html';
+                    }, 3000);
+                } else {
+                    throw new Error(data.error || 'Unbekannter Fehler');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                result.className = 'result error';
+                result.style.display = 'block';
+                result.innerHTML = `
+                    <h3>❌ Fehler</h3>
+                    <p>${error.message}</p>
+                    <p>Bitte versuchen Sie es erneut.</p>
+                `;
+                
+                btn.disabled = false;
+                btn.innerHTML = 'Erneut versuchen';
+            }
+        }
+    </script>
+</body>
+</html>
+
