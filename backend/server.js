@@ -67,8 +67,19 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: [
+        "'self'", 
+        "'unsafe-inline'",
+        "https://www.googletagmanager.com",  // Google Analytics
+        "https://www.google-analytics.com"   // Google Analytics
+      ],
       imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: [
+        "'self'",
+        "https://www.google-analytics.com",  // Analytics data collection
+        "https://analytics.google.com",      // Analytics API
+        "https://region1.google-analytics.com"  // Regional Analytics endpoints
+      ],
     },
   },
 }));

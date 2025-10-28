@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Debug Test</title>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XX6ZT39L6L"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XX6ZT39L6L', {
+        'debug_mode': true
+      });
+      
+      // Log to console
+      console.log('✅ Analytics initialized with ID: G-XX6ZT39L6L');
+      console.log('✅ DataLayer:', window.dataLayer);
+    </script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button:hover { background: #0056b3; }
+        #log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #007bff;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-box">
+        <h1>🔍 Google Analytics Debug Test</h1>
+        
+        <div class="status info">
+            <strong>Measurement ID:</strong> G-XX6ZT39L6L
+        </div>
+        
+        <div id="status" class="status warning">
+            ⏳ Warte auf Analytics-Initialisierung...
+        </div>
+        
+        <h2>Test-Events senden:</h2>
+        <button onclick="testPageView()">📄 Page View senden</button>
+        <button onclick="testCustomEvent()">🎯 Custom Event senden</button>
+        <button onclick="testSignup()">✍️ Sign Up Event senden</button>
+        <button onclick="checkDataLayer()">🔎 DataLayer prüfen</button>
+        
+        <h2>Debug Log:</h2>
+        <div id="log"></div>
+        
+        <h2>📋 Checkliste:</h2>
+        <ul>
+            <li>✅ Diese Seite im Browser öffnen</li>
+            <li>✅ Browser-Konsole öffnen (F12 → Console)</li>
+            <li>✅ Nach Fehlermeldungen suchen</li>
+            <li>✅ Test-Buttons klicken</li>
+            <li>✅ In Google Analytics nach Echtzeit-Daten suchen</li>
+            <li>✅ Warten Sie 5-10 Minuten</li>
+        </ul>
+        
+        <h2>🌐 Network Request prüfen:</h2>
+        <ol>
+            <li>F12 → Network Tab öffnen</li>
+            <li>Nach "collect" oder "gtag" filtern</li>
+            <li>Button klicken</li>
+            <li>Schauen Sie, ob Requests an google-analytics.com gehen</li>
+        </ol>
+    </div>
+    
+    <script>
+        // Log function
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const timestamp = new Date().toLocaleTimeString('de-DE');
+            entry.innerHTML = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        // Check if gtag loaded
+        setTimeout(() => {
+            if (typeof gtag === 'function') {
+                document.getElementById('status').className = 'status success';
+                document.getElementById('status').innerHTML = '✅ Analytics erfolgreich geladen!';
+                log('✅ gtag() function exists', 'success');
+            } else {
+                document.getElementById('status').className = 'status warning';
+                document.getElementById('status').innerHTML = '⚠️ gtag() nicht gefunden - möglicherweise durch AdBlocker blockiert!';
+                log('⚠️ gtag() function NOT found!', 'error');
+            }
+        }, 2000);
+        
+        // Test functions
+        function testPageView() {
+            try {
+                gtag('event', 'page_view', {
+                    'page_title': 'Analytics Test Page',
+                    'page_location': window.location.href
+                });
+                log('📄 Page View Event gesendet!');
+                alert('✅ Page View Event gesendet! Prüfen Sie die Network-Console.');
+            } catch (e) {
+                log('❌ Error: ' + e.message, 'error');
+                alert('❌ Fehler: ' + e.message);
+            }
+        }
+        
+        function testCustomEvent() {
+            try {
+                gtag('event', 'test_event', {
+                    'event_category': 'engagement',
+                    'event_label': 'debug_test',
+                    'value': 1
+                });
+                log('🎯 Custom Event gesendet!');
+                alert('✅ Custom Event gesendet! Prüfen Sie die Network-Console.');
+            } catch (e) {
+                log('❌ Error: ' + e.message, 'error');
+                alert('❌ Fehler: ' + e.message);
+            }
+        }
+        
+        function testSignup() {
+            try {
+                gtag('event', 'sign_up', {
+                    'method': 'test'
+                });
+                log('✍️ Sign Up Event gesendet!');
+                alert('✅ Sign Up Event gesendet! Prüfen Sie die Network-Console.');
+            } catch (e) {
+                log('❌ Error: ' + e.message, 'error');
+                alert('❌ Fehler: ' + e.message);
+            }
+        }
+        
+        function checkDataLayer() {
+            log('📊 DataLayer Inhalt:');
+            log(JSON.stringify(window.dataLayer, null, 2));
+            console.table(window.dataLayer);
+            alert('DataLayer wurde in die Konsole geloggt. Prüfen Sie die Browser-Console (F12).');
+        }
+        
+        // Log initial state
+        log('🚀 Analytics Debug Test gestartet');
+        log('📍 URL: ' + window.location.href);
+        log('🆔 Measurement ID: G-XX6ZT39L6L');
+        log('🌐 User Agent: ' + navigator.userAgent);
+        
+        // Check for ad blockers
+        setTimeout(() => {
+            if (!document.querySelector('script[src*="googletagmanager"]')) {
+                log('⚠️ WARNUNG: Google Analytics Skript wurde möglicherweise blockiert!', 'error');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
+
