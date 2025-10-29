@@ -303,8 +303,8 @@
     <div class="main-content">
         <h1 class="page-title">Lerngruppen</h1>
         
-        <div class="create-group-section" id="createGroupSection" style="display: none;">
-            <a href="/gruppe-erstellen.html" class="btn-create-group">+ Neue Gruppe erstellen</a>
+        <div class="create-group-section" id="createGroupSection">
+            <a href="/login.html?return=/gruppe-erstellen.html" class="btn-create-group" id="createGroupLink">+ Neue Gruppe erstellen</a>
         </div>
         
         <div class="groups-list" id="groupsContainer">
@@ -331,8 +331,11 @@
                         <a href="/users/logout" class="btn-link">Abmelden</a>
                     `;
                     
-                    // Show centered create group button
-                    document.getElementById('createGroupSection').style.display = 'block';
+                    // Update create button to go directly to create page when logged in
+                    const createLink = document.getElementById('createGroupLink');
+                    if (createLink) {
+                        createLink.href = '/gruppe-erstellen.html';
+                    }
                 }
             } catch (error) {
                 // User not logged in, keep default buttons
@@ -451,5 +454,6 @@
         // Load data on page load
         loadUser().then(() => loadGroups());
     </script>
+    <script src="/share.js" defer></script>
 </body>
 </html>
