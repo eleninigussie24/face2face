@@ -304,7 +304,7 @@
         <h1 class="page-title">Lerngruppen</h1>
         
         <div class="create-group-section" id="createGroupSection">
-            <a href="/login.html?return=/gruppe-erstellen.html" class="btn-create-group" id="createGroupLink">+ Neue Gruppe erstellen</a>
+            <a href="/login.html?return=/gruppe-erstellen.html" class="btn-create-group" id="createGroupLink">Lerngruppe erstellen</a>
         </div>
         
         <div class="groups-list" id="groupsContainer">
@@ -335,6 +335,7 @@
                     const createLink = document.getElementById('createGroupLink');
                     if (createLink) {
                         createLink.href = '/gruppe-erstellen.html';
+                        createLink.textContent = 'Lerngruppe erstellen';
                     }
                 }
             } catch (error) {
