@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 const { connectDB } = require("./mongoConfig");
 const User = require("./models/User");
 const Group = require("./models/Group");
@@ -55,58 +56,63 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Initialize MongoDB connection
-connectDB();
+connectDB().then(() => {
+  // ===========================
+  // AUTO-SEED DEMO GROUP
+  // ===========================
+  
+  // Automatically create demo group if it doesn't exist
+  // Run after DB is confirmed connected
+  setTimeout(async () => {
+    try {
+      // Check if mongoose is actually connected
+      if (mongoose.connection.readyState !== 1) {
+        console.log("⚠️  MongoDB not ready yet, skipping demo group creation");
+        return;
+      }
+      
+      // Check if demo group already exists
+      const existingGroup = await Group.findOne({ name: "Analysis und Lineare Algebra" });
+      if (existingGroup) {
+        console.log("✅ Demo group already exists");
+        return;
+      }
 
-// ===========================
-// AUTO-SEED DEMO GROUP
-// ===========================
+      // Find or create demo user
+      let demoUser = await User.findOne({ email: "demo@face2face.app" });
+      
+      if (!demoUser) {
+        demoUser = new User({
+          name: "Face2Face Team",
+          email: "demo@face2face.app",
+          password: "Demo123456!",
+          isVerified: true,
+          verificationCode: null
+        });
+        await demoUser.save();
+        console.log("✅ Demo user created");
+      }
 
-// Automatically create demo group if it doesn't exist
-async function createDemoGroupIfNeeded() {
-  try {
-    // Wait a bit for DB connection to be fully established
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Check if demo group already exists
-    const existingGroup = await Group.findOne({ name: "Analysis und Lineare Algebra" });
-    if (existingGroup) {
-      console.log("✅ Demo group already exists");
-      return;
-    }
-
-    // Find or create demo user
-    let demoUser = await User.findOne({ email: "demo@face2face.app" });
-    
-    if (!demoUser) {
-      demoUser = new User({
-        name: "Face2Face Team",
-        email: "demo@face2face.app",
-        password: "Demo123456!",
-        isVerified: true,
-        verificationCode: null
+      // Create demo group
+      const demoGroup = new Group({
+        name: "Analysis und Lineare Algebra",
+        description: "Lerngruppe für Analysis und Lineare Algebra. Gemeinsam Aufgaben lösen, Konzepte verstehen und für Prüfungen vorbereiten.",
+        created_by: demoUser._id,
+        max_teilnehmer: 5,
+        members: []
       });
-      await demoUser.save();
-      console.log("✅ Demo user created");
+
+      await demoGroup.save();
+      console.log("✅ Demo group 'Analysis und Lineare Algebra' created successfully");
+    } catch (error) {
+      console.error("⚠️  Could not create demo group:", error.message);
+      // Don't crash server if demo group creation fails
     }
-
-    // Create demo group
-    const demoGroup = new Group({
-      name: "Analysis und Lineare Algebra",
-      description: "Lerngruppe für Analysis und Lineare Algebra. Gemeinsam Aufgaben lösen, Konzepte verstehen und für Prüfungen vorbereiten.",
-      created_by: demoUser._id,
-      max_teilnehmer: 5,
-      members: []
-    });
-
-    await demoGroup.save();
-    console.log("✅ Demo group 'Analysis und Lineare Algebra' created successfully");
-  } catch (error) {
-    console.error("⚠️  Could not create demo group:", error.message);
-  }
-}
-
-// Run after a short delay to ensure DB is connected
-setTimeout(createDemoGroupIfNeeded, 3000);
+  }, 2000);
+}).catch((error) => {
+  console.error("❌ Failed to connect to MongoDB:", error);
+  // Server will exit in mongoConfig.js if connection fails
+});
 
 // ===========================
 // SECURITY MIDDLEWARE
