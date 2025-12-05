@@ -284,6 +284,49 @@ app.set('trust proxy', 1);
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+
+// Canonical host + HTTPS redirect (preserve path and query)
+app.use((req, res, next) => {
+  const xfp = req.headers['x-forwarded-proto'];
+  const host = req.headers.host;
+  const canonicalHost = process.env.CANONICAL_HOST; // e.g. "example.com" or "www.example.com"
+  const oldHosts = (process.env.OLD_HOSTS || '')
+    .split(',')
+    .map(h => h.trim().toLowerCase())
+    .filter(Boolean);
+
+  // Enforce HTTPS behind proxy in production
+  if (process.env.NODE_ENV === 'production' && xfp && xfp !== 'https') {
+    return res.redirect(301, `https://${host}${req.originalUrl}`);
+  }
+
+  // Redirect any old hosts to canonical host
+  if (canonicalHost) {
+    const isCanonical = host && host.toLowerCase() === canonicalHost.toLowerCase();
+    const isOld = host && oldHosts.includes(host.toLowerCase());
+    if (!isCanonical && (isOld || oldHosts.length > 0)) {
+      return res.redirect(301, `https://${canonicalHost}${req.originalUrl}`);
+    }
+  }
+
+  // Optional: normalize www vs apex based on FORCE_WWW / REMOVE_WWW
+  if (canonicalHost) {
+    const forceWww = process.env.FORCE_WWW === 'true';
+    const removeWww = process.env.REMOVE_WWW === 'true';
+    if (host) {
+      const lowerHost = host.toLowerCase();
+      if (forceWww && !lowerHost.startsWith('www.')) {
+        return res.redirect(301, `https://www.${lowerHost}${req.originalUrl}`);
+      }
+      if (removeWww && lowerHost.startsWith('www.')) {
+        return res.redirect(301, `https://${lowerHost.substring(4)}${req.originalUrl}`);
+      }
+    }
+  }
+
+  next();
+});
+
 // View engine
 app.set("view engine", "ejs");
 app.set('views', path.join(__dirname, 'views'));
@@ -611,7 +654,14 @@ app.post("/users/login", authLimiter, loginValidation, (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const errorMsg = errors.array().map(e => e.msg).join(', ');
-    return res.redirect(`/login.html?error=${encodeURIComponent(errorMsg)}`);
+    const returnUrl = req.body.return || req.query.return;
+    const errorParam = `?error=${encodeURIComponent(errorMsg)}${returnUrl ? `&return=${encodeURIComponent(returnUrl)}` : ''}`;
+    return res.redirect(`/login.html${errorParam}`);
+  }
+
+  // Store return URL from form body if present
+  if (req.body.return && !req.session.returnTo) {
+    req.session.returnTo = req.body.return;
   }
 
   passport.authenticate("local", (err, user, info) => {
@@ -672,7 +722,11 @@ app.get('/auth/callback', (req, res, next) => {
       }
       
       console.log(`User logged in via Auth0: ${user.email}`);
-      res.redirect('/gruppen.html');
+      
+      // Redirect to the page they were trying to access, or default to /gruppen.html
+      const returnTo = req.session.returnTo || '/gruppen.html';
+      delete req.session.returnTo; // Clear it after use
+      res.redirect(returnTo);
     });
   })(req, res, next);
 });

@@ -226,6 +226,28 @@
     </div>
 
     <script>
+        // Check if user is logged in
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/user');
+                if (!response.ok) {
+                    // User not logged in, redirect to login
+                    const returnUrl = encodeURIComponent(window.location.pathname);
+                    window.location.href = `/login.html?return=${returnUrl}`;
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('Auth check error:', error);
+                const returnUrl = encodeURIComponent(window.location.pathname);
+                window.location.href = `/login.html?return=${returnUrl}`;
+                return false;
+            }
+        }
+        
+        // Check authentication on page load
+        checkAuth();
+        
         function goBack() {
             if (document.referrer && document.referrer.includes(window.location.host)) {
                 window.history.back();
@@ -261,6 +283,10 @@
                     const group = await response.json();
                     // Redirect to the newly created group
                     window.location.href = `/gruppe-details.html?id=${group._id}`;
+                } else if (response.status === 401 || response.status === 403) {
+                    // User not authenticated, redirect to login
+                    const returnUrl = encodeURIComponent(window.location.pathname);
+                    window.location.href = `/login.html?return=${returnUrl}&error=${encodeURIComponent('Bitte melde dich an, um eine Gruppe zu erstellen.')}`;
                 } else {
                     const error = await response.json();
                     alert(error.error || 'Fehler beim Erstellen der Gruppe');

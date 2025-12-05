@@ -217,7 +217,8 @@
     <div class="form-container">
         <div id="message" class="message"></div>
         
-        <form action="/users/login" method="POST">
+        <form id="loginForm" action="/users/login" method="POST">
+            <input type="hidden" name="return" id="returnInput" value="">
             <div class="form-group">
                 <label>E-Mail</label>
                 <input type="email" name="email" required autofocus>
@@ -268,6 +269,7 @@
         const params = new URLSearchParams(window.location.search);
         const error = params.get('error');
         const success = params.get('success');
+        const returnUrl = params.get('return');
         const messageDiv = document.getElementById('message');
         
         if (error) {
@@ -278,6 +280,16 @@
             messageDiv.textContent = decodeURIComponent(success);
             messageDiv.className = 'message success-message';
             messageDiv.style.display = 'block';
+        }
+        
+        // Store return URL in hidden input and session
+        if (returnUrl) {
+            document.getElementById('returnInput').value = returnUrl;
+            // Also store in session via backend
+            fetch('/users/login?returnTo=' + encodeURIComponent(returnUrl), {
+                method: 'GET',
+                credentials: 'include'
+            }).catch(err => console.error('Failed to store return URL:', err));
         }
     </script>
     <script src="/share.js" defer></script>

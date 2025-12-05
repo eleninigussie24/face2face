@@ -111,10 +111,11 @@
 <body>
     <div class="container">
         <h1 class="logo">Face2Face</h1>
-        <p class="tagline">Hier gibt es Lerngruppen</p>
+        <p class="tagline">Finde deine Lerngruppe oder erstelle eine neue</p>
         
         <div class="buttons" id="authButtons">
-            <a href="/gruppen.html" class="btn btn-primary">Gruppen ansehen</a>
+            <a href="/register.html" class="btn btn-primary">Jetzt registrieren</a>
+            <a href="/gruppen.html" class="btn btn-secondary">Gruppen ansehen</a>
             <a href="/login.html" class="btn btn-secondary">Anmelden</a>
         </div>
     </div>
@@ -128,7 +129,8 @@
                     const user = await res.json();
                     // User is logged in, show different buttons
                     document.getElementById('authButtons').innerHTML = `
-                        <a href="/gruppen.html" class="btn btn-primary">Meine Gruppen</a>
+                        <a href="/gruppen.html" class="btn btn-primary">Gruppen ansehen</a>
+                        <a href="/gruppe-erstellen.html" class="btn btn-secondary">Gruppe erstellen</a>
                         <a href="/users/logout" class="btn btn-secondary">Abmelden</a>
                     `;
                 }
